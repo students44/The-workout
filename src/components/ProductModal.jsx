@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "react-hot-toast";
 
 export default function ProductModal({ isOpen, onClose, onSubmit, product }) {
     const [formData, setFormData] = useState({
@@ -182,7 +183,7 @@ export default function ProductModal({ isOpen, onClose, onSubmit, product }) {
                                                 setFormData({ ...formData, image: data.url });
                                             } catch (error) {
                                                 console.error("Upload error:", error);
-                                                alert("Failed to upload image");
+                                                toast.error("Failed to upload image");
                                             }
                                         }}
                                         className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-red-600 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700"

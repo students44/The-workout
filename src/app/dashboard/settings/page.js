@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Switch } from "@headlessui/react";
 import { BellIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
 import { signOut } from "next-auth/react";
+import Swal from "sweetalert2";
 
 export default function SettingsPage() {
     const [emailNotifications, setEmailNotifications] = useState(true);
@@ -84,19 +85,51 @@ export default function SettingsPage() {
                             </div>
                             <button
                                 onClick={async () => {
-                                    if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+                                    const result = await Swal.fire({
+                                        title: "Are you sure?",
+                                        text: "You won't be able to revert this! Your account and all data will be permanently deleted.",
+                                        icon: "warning",
+                                        showCancelButton: true,
+                                        confirmButtonColor: "#d33",
+                                        cancelButtonColor: "#3085d6",
+                                        confirmButtonText: "Yes, delete my account",
+                                        background: "#1a1a1a",
+                                        color: "#ffffff"
+                                    });
+
+                                    if (result.isConfirmed) {
                                         try {
                                             const res = await fetch("/api/user/profile", {
                                                 method: "DELETE",
                                             });
                                             if (res.ok) {
+                                                await Swal.fire({
+                                                    title: "Deleted!",
+                                                    text: "Your account has been deleted.",
+                                                    icon: "success",
+                                                    background: "#1a1a1a",
+                                                    color: "#ffffff",
+                                                    confirmButtonColor: "#d33"
+                                                });
                                                 await signOut({ callbackUrl: '/' });
                                             } else {
-                                                alert("Failed to delete account");
+                                                Swal.fire({
+                                                    title: "Error!",
+                                                    text: "Failed to delete account.",
+                                                    icon: "error",
+                                                    background: "#1a1a1a",
+                                                    color: "#ffffff"
+                                                });
                                             }
                                         } catch (error) {
                                             console.error("Error deleting account:", error);
-                                            alert("Error deleting account");
+                                            Swal.fire({
+                                                title: "Error!",
+                                                text: "Something went wrong.",
+                                                icon: "error",
+                                                background: "#1a1a1a",
+                                                color: "#ffffff"
+                                            });
                                         }
                                     }
                                 }}

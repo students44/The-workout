@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Search, Trash2, Mail, Shield, User as UserIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
+import Swal from "sweetalert2";
 
 export default function AdminUsersPage() {
     const [users, setUsers] = useState([]);
@@ -27,7 +28,19 @@ export default function AdminUsersPage() {
     };
 
     const handleDeleteUser = async (userId) => {
-        if (!confirm("Are you sure you want to delete this user? This action cannot be undone.")) return;
+        const result = await Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, delete it!",
+            background: "#1a1a1a",
+            color: "#ffffff"
+        });
+
+        if (!result.isConfirmed) return;
 
         try {
             const res = await fetch(`/api/admin/users/${userId}`, {
@@ -37,7 +50,14 @@ export default function AdminUsersPage() {
             if (res.ok) {
                 // Remove user from local state immediately
                 setUsers(users.filter(user => user._id !== userId));
-                toast.success("User deleted successfully", { duration: 2000 });
+                Swal.fire({
+                    title: "Deleted!",
+                    text: "User has been deleted.",
+                    icon: "success",
+                    background: "#1a1a1a",
+                    color: "#ffffff",
+                    confirmButtonColor: "#d33"
+                });
             } else {
                 const data = await res.json();
                 toast.error(data.message || "Failed to delete user");

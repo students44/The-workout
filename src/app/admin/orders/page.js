@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Eye, Clock, CheckCircle, XCircle, Truck, Trash2, Check, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
+import Swal from "sweetalert2";
 
 export default function AdminOrdersPage() {
     const [orders, setOrders] = useState([]);
@@ -66,7 +67,19 @@ export default function AdminOrdersPage() {
     };
 
     const handleDeleteOrder = async (orderId) => {
-        if (!confirm("Are you sure you want to delete this order?")) return;
+        const result = await Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, delete it!",
+            background: "#1a1a1a",
+            color: "#ffffff"
+        });
+
+        if (!result.isConfirmed) return;
 
         try {
             const res = await fetch(`/api/admin/orders/${orderId}`, {
@@ -75,7 +88,14 @@ export default function AdminOrdersPage() {
 
             if (res.ok) {
                 setOrders(orders.filter(order => order._id !== orderId));
-                toast.success("Order deleted successfully");
+                Swal.fire({
+                    title: "Deleted!",
+                    text: "Order has been deleted.",
+                    icon: "success",
+                    background: "#1a1a1a",
+                    color: "#ffffff",
+                    confirmButtonColor: "#d33"
+                });
             } else {
                 toast.error("Failed to delete order");
             }
