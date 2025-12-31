@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function ProfileForm({ user }) {
     const router = useRouter();
+    const { data: session } = useSession(); // Access session data
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: "", text: "" });
     const [formData, setFormData] = useState({
@@ -12,10 +14,48 @@ export default function ProfileForm({ user }) {
         email: user?.email || "",
         password: "",
         confirmPassword: "",
+        image: user?.image || "",
     });
+
+    const { update } = useSession();
+
+    useEffect(() => {
+        if (user) {
+            setFormData({
+                name: user.name || "",
+                email: user.email || "",
+                password: "",
+                confirmPassword: "",
+                image: user.image || "",
+            });
+        }
+    }, [user]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleImageUpload = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const uploadData = new FormData();
+        uploadData.append("file", file);
+
+        try {
+            const res = await fetch("/api/upload", {
+                method: "POST",
+                body: uploadData,
+            });
+
+            if (!res.ok) throw new Error("Upload failed");
+
+            const data = await res.json();
+            setFormData(prev => ({ ...prev, image: data.url }));
+        } catch (error) {
+            console.error("Upload error:", error);
+            setMessage({ type: "error", text: "Failed to upload image" });
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -39,12 +79,18 @@ export default function ProfileForm({ user }) {
                     name: formData.name,
                     email: formData.email,
                     password: formData.password || undefined,
+                    image: formData.image,
                 }),
             });
 
             if (res.ok) {
+                const updatedUser = await res.json();
                 setMessage({ type: "success", text: "Profile updated successfully" });
                 setFormData(prev => ({ ...prev, password: "", confirmPassword: "" }));
+
+                // Update session with new image
+                await update({ image: formData.image });
+
                 router.refresh();
             } else {
                 const data = await res.json();
@@ -60,6 +106,38 @@ export default function ProfileForm({ user }) {
     return (
         <form onSubmit={handleSubmit} className="space-y-6 bg-gray-900/50 p-8 rounded-xl border border-gray-800">
             <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+
+                <div className="sm:col-span-6 flex items-center gap-x-6">
+                    <div className="relative h-24 w-24 rounded-full overflow-hidden bg-gray-800 border border-gray-700">
+                        {formData.image ? (
+                            <img src={formData.image} alt="Profile" className="h-full w-full object-cover" />
+                        ) : (
+                            <div className="h-full w-full flex items-center justify-center text-gray-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-12 h-12">
+                                    <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clipRule="evenodd" />
+                                </svg>
+                            </div>
+                        )}
+                    </div>
+                    <div>
+                        <label
+                            htmlFor="file-upload"
+                            className="rounded-md bg-white/10 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-white/20 cursor-pointer transition-colors"
+                        >
+                            Change Photo
+                        </label>
+                        <input
+                            id="file-upload"
+                            name="file-upload"
+                            type="file"
+                            className="sr-only"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                        />
+                        <p className="mt-2 text-xs leading-5 text-gray-400">JPG, GIF or PNG. Max 5MB.</p>
+                    </div>
+                </div>
+
                 <div className="sm:col-span-3">
                     <label htmlFor="name" className="block text-sm font-medium leading-6 text-white">
                         Full Name

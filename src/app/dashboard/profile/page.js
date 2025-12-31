@@ -50,8 +50,14 @@ export default async function ProfilePage() {
                     </div>
                     <div className="bg-gray-900/50 p-6 rounded-xl border border-gray-800">
                         <div className="text-center mb-6">
-                            <div className="inline-block p-3 rounded-full bg-gray-800 mb-4">
-                                <UserCircleIcon className="w-12 h-12 text-gray-400" />
+                            <div className="inline-block relative w-24 h-24 rounded-full overflow-hidden bg-gray-800 mb-4 border-2 border-gray-700">
+                                {user.image ? (
+                                    <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                        <UserCircleIcon className="w-16 h-16 text-gray-400" />
+                                    </div>
+                                )}
                             </div>
                             <h3 className="text-xl font-bold text-white">{user.name}</h3>
                             <p className="text-gray-400 text-sm">{user.email}</p>

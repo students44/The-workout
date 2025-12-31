@@ -81,7 +81,26 @@ export default function SettingsPage() {
                                 <h4 className="text-sm font-medium text-white">Delete Account</h4>
                                 <p className="text-sm text-gray-400 mt-1">Permanently remove your account and all data.</p>
                             </div>
-                            <button className="px-4 py-2 bg-red-600/10 text-red-500 border border-red-600/20 rounded-lg text-sm font-medium hover:bg-red-600/20 transition-colors">
+                            <button
+                                onClick={async () => {
+                                    if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+                                        try {
+                                            const res = await fetch("/api/user/profile", {
+                                                method: "DELETE",
+                                            });
+                                            if (res.ok) {
+                                                window.location.href = "/";
+                                            } else {
+                                                alert("Failed to delete account");
+                                            }
+                                        } catch (error) {
+                                            console.error("Error deleting account:", error);
+                                            alert("Error deleting account");
+                                        }
+                                    }
+                                }}
+                                className="px-4 py-2 bg-red-600/10 text-red-500 border border-red-600/20 rounded-lg text-sm font-medium hover:bg-red-600/20 transition-colors"
+                            >
                                 Delete Account
                             </button>
                         </div>

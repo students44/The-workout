@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Users, DollarSign, ShoppingBag, TrendingUp, Clock } from "lucide-react";
 
@@ -96,18 +97,18 @@ export default function AdminDashboard() {
                     <h2 className="text-xl font-bold text-white">Quick Actions</h2>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <button className="p-4 bg-white/5 hover:bg-white/10 rounded-xl text-left transition-colors border border-white/5 hover:border-white/20">
+                    <Link href="/admin/products" className="p-4 bg-white/5 hover:bg-white/10 rounded-xl text-left transition-colors border border-white/5 hover:border-white/20">
                         <h3 className="font-bold text-white mb-1">Add Product</h3>
                         <p className="text-sm text-gray-400">List a new item in the store</p>
-                    </button>
-                    <button className="p-4 bg-white/5 hover:bg-white/10 rounded-xl text-left transition-colors border border-white/5 hover:border-white/20">
+                    </Link>
+                    <Link href="/admin/orders" className="p-4 bg-white/5 hover:bg-white/10 rounded-xl text-left transition-colors border border-white/5 hover:border-white/20">
                         <h3 className="font-bold text-white mb-1">View Recent Orders</h3>
                         <p className="text-sm text-gray-400">Check latest purchases</p>
-                    </button>
-                    <button className="p-4 bg-white/5 hover:bg-white/10 rounded-xl text-left transition-colors border border-white/5 hover:border-white/20">
+                    </Link>
+                    <Link href="/admin/users" className="p-4 bg-white/5 hover:bg-white/10 rounded-xl text-left transition-colors border border-white/5 hover:border-white/20">
                         <h3 className="font-bold text-white mb-1">Manage Users</h3>
                         <p className="text-sm text-gray-400">Review user accounts</p>
-                    </button>
+                    </Link>
                 </div>
             </div>
         </div>

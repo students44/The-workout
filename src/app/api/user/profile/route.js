@@ -1,8 +1,8 @@
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
-import { getServerSession } from "next-auth";
-import { NextResponse } from "next/server";
-import { authOptions } from "../../auth/[...nextauth]/route";
 import bcrypt from "bcryptjs";
 
 export async function PUT(req) {
@@ -13,34 +13,36 @@ export async function PUT(req) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
+        const body = await req.json();
+        const { name, email, password, image } = body;
+
         await dbConnect();
 
-        const { name, email, password } = await req.json();
+        const user = await User.findById(session.user.id);
 
-        const updateData = { name, email };
-
-        if (password) {
-            const hashedPassword = await bcrypt.hash(password, 10);
-            updateData.password = hashedPassword;
+        if (!user) {
+            return NextResponse.json({ message: "User not found" }, { status: 404 });
         }
 
-        const user = await User.findByIdAndUpdate(
-            session.user.id,
-            updateData,
-            { new: true, runValidators: true }
-        ).select("-password");
+        if (name) user.name = name;
+        if (email) user.email = email;
+        if (image) user.image = image;
 
-        return NextResponse.json(user, { status: 200 });
+        if (password) {
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(password, salt);
+        }
+
+        await user.save();
+
+        return NextResponse.json({ message: "Profile updated successfully", user });
     } catch (error) {
         console.error("Error updating profile:", error);
-        return NextResponse.json(
-            { message: "Internal Server Error" },
-            { status: 500 }
-        );
+        return NextResponse.json({ message: "Error updating profile" }, { status: 500 });
     }
 }
 
-export async function GET(req) {
+export async function DELETE(req) {
     try {
         const session = await getServerSession(authOptions);
 
@@ -50,18 +52,15 @@ export async function GET(req) {
 
         await dbConnect();
 
-        const user = await User.findById(session.user.id).select("-password");
+        const deletedUser = await User.findByIdAndDelete(session.user.id);
 
-        if (!user) {
+        if (!deletedUser) {
             return NextResponse.json({ message: "User not found" }, { status: 404 });
         }
 
-        return NextResponse.json(user, { status: 200 });
+        return NextResponse.json({ message: "Account deleted successfully" });
     } catch (error) {
-        console.error("Error fetching profile:", error);
-        return NextResponse.json(
-            { message: "Internal Server Error" },
-            { status: 500 }
-        );
+        console.error("Error deleting account:", error);
+        return NextResponse.json({ message: "Error deleting account" }, { status: 500 });
     }
 }

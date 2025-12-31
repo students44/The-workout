@@ -86,7 +86,15 @@ const Navbar = () => {
                             )}
                         </button>
                         <Link href="/login" className="p-2 text-gray-300 hover:text-white transition-colors">
-                            <User size={20} />
+                            {session?.user?.image ? (
+                                <img
+                                    src={session.user.image}
+                                    alt="Profile"
+                                    className="h-8 w-8 rounded-full object-cover border border-gray-700"
+                                />
+                            ) : (
+                                <User size={20} />
+                            )}
                         </Link>
                         <Link
                             href="/membership"
@@ -147,7 +155,15 @@ const Navbar = () => {
                                 )}
                             </button>
                             <Link href="/login" className="text-gray-300 hover:text-white" onClick={() => setIsOpen(false)}>
-                                <User size={20} />
+                                {session?.user?.image ? (
+                                    <img
+                                        src={session.user.image}
+                                        alt="Profile"
+                                        className="h-8 w-8 rounded-full object-cover border border-gray-700"
+                                    />
+                                ) : (
+                                    <User size={20} />
+                                )}
                             </Link>
                         </div>
                     </div>

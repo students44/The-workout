@@ -32,10 +32,14 @@ export const authOptions = {
         }),
     ],
     callbacks: {
-        async jwt({ token, user }) {
+        async jwt({ token, user, trigger, session }) {
             if (user) {
                 token.role = user.role;
                 token.id = user._id;
+                token.picture = user.image;
+            }
+            if (trigger === "update" && session?.image) {
+                token.picture = session.image;
             }
             return token;
         },
@@ -43,6 +47,7 @@ export const authOptions = {
             if (session?.user) {
                 session.user.role = token.role;
                 session.user.id = token.id;
+                session.user.image = token.picture;
             }
             return session;
         },
