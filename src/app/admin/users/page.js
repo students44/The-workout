@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Search, Trash2, Mail, Shield, User as UserIcon } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "react-hot-toast";
 
 export default function AdminUsersPage() {
     const [users, setUsers] = useState([]);
@@ -22,6 +23,28 @@ export default function AdminUsersPage() {
             console.error("Failed to fetch users", error);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleDeleteUser = async (userId) => {
+        if (!confirm("Are you sure you want to delete this user? This action cannot be undone.")) return;
+
+        try {
+            const res = await fetch(`/api/admin/users/${userId}`, {
+                method: "DELETE",
+            });
+
+            if (res.ok) {
+                // Remove user from local state immediately
+                setUsers(users.filter(user => user._id !== userId));
+                toast.success("User deleted successfully", { duration: 2000 });
+            } else {
+                const data = await res.json();
+                toast.error(data.message || "Failed to delete user");
+            }
+        } catch (error) {
+            console.error("Error deleting user:", error);
+            toast.error("Error deleting user");
         }
     };
 
@@ -89,8 +112,8 @@ export default function AdminUsersPage() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${user.role === 'admin'
-                                                    ? "bg-red-500/10 text-red-500 border-red-500/20"
-                                                    : "bg-blue-500/10 text-blue-500 border-blue-500/20"
+                                                ? "bg-red-500/10 text-red-500 border-red-500/20"
+                                                : "bg-blue-500/10 text-blue-500 border-blue-500/20"
                                                 }`}>
                                                 {user.role === 'admin' ? <Shield size={12} /> : <UserIcon size={12} />}
                                                 {user.role}
@@ -105,7 +128,10 @@ export default function AdminUsersPage() {
                                             {new Date(user.createdAt).toLocaleDateString()}
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <button className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
+                                            <button
+                                                onClick={() => handleDeleteUser(user._id)}
+                                                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                                            >
                                                 <Trash2 size={18} />
                                             </button>
                                         </td>

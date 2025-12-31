@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Switch } from "@headlessui/react";
 import { BellIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
+import { signOut } from "next-auth/react";
 
 export default function SettingsPage() {
     const [emailNotifications, setEmailNotifications] = useState(true);
@@ -89,7 +90,7 @@ export default function SettingsPage() {
                                                 method: "DELETE",
                                             });
                                             if (res.ok) {
-                                                window.location.href = "/";
+                                                await signOut({ callbackUrl: '/' });
                                             } else {
                                                 alert("Failed to delete account");
                                             }
