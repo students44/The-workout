@@ -2,25 +2,37 @@ import nodemailer from 'nodemailer';
 
 const sendEmail = async (options) => {
     // Create a transporter
-    const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST || 'smtp.mailtrap.io', // Default or env
-        port: process.env.SMTP_PORT || 2525,
-        auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
-        },
-    });
+    let transporter;
+
+    if (process.env.GMAIL_USER && process.env.GMAIL_PASS) {
+        transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.GMAIL_USER,
+                pass: process.env.GMAIL_PASS, // App Password
+            },
+        });
+    } else {
+        transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST || 'smtp.mailtrap.io', // Default or env
+            port: process.env.SMTP_PORT || 2525,
+            auth: {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS,
+            },
+        });
+    }
 
     // Define email options
     const mailOptions = {
-        from: process.env.SMTP_FROM_EMAIL || 'noreply@theworkout.com',
+        from: process.env.SMTP_FROM_EMAIL || 'itstudents005@gmail.com',
         to: options.email,
         subject: options.subject,
         html: options.message,
     };
 
     try {
-        if (!process.env.SMTP_USER) {
+        if (!process.env.SMTP_USER && !process.env.GMAIL_USER) {
             console.log('No SMTP_USER provided. Logging email to console instead.');
             console.log('---------------------------------------------------');
             console.log(`To: ${options.email}`);

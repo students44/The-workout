@@ -1,5 +1,5 @@
 import User from "@/models/User";
-import connect from "@/utils/db";
+import connect from "@/lib/db";
 import crypto from "crypto";
 import sendEmail from "@/lib/sendEmail";
 import { NextResponse } from "next/server";
@@ -12,6 +12,7 @@ export async function POST(req) {
     const user = await User.findOne({ email });
 
     if (!user) {
+        console.log("Forgot Password Error: User not found with email", email);
         return NextResponse.json({ message: "Email could not be sent" }, { status: 404 });
     }
 
@@ -50,6 +51,7 @@ export async function POST(req) {
 
         return NextResponse.json({ success: true, data: "Email Sent" }, { status: 200 });
     } catch (error) {
+        console.error("Forgot Password Error: Detailed error sending email:", error);
         user.resetPasswordToken = undefined;
         user.resetPasswordExpire = undefined;
 
