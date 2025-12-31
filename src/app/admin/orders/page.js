@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Eye, Clock, CheckCircle, XCircle, Truck } from "lucide-react";
+import { Eye, Clock, CheckCircle, XCircle, Truck, Trash2, Check, X } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "react-hot-toast";
 
 export default function AdminOrdersPage() {
     const [orders, setOrders] = useState([]);
@@ -39,6 +40,48 @@ export default function AdminOrdersPage() {
             case "Shipped": return Truck;
             case "Cancelled": return XCircle;
             default: return Clock;
+        }
+    };
+
+    const handleUpdateStatus = async (orderId, newStatus) => {
+        try {
+            const res = await fetch(`/api/admin/orders/${orderId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: newStatus }),
+            });
+
+            if (res.ok) {
+                setOrders(orders.map(order =>
+                    order._id === orderId ? { ...order, status: newStatus } : order
+                ));
+                toast.success(`Order ${newStatus.toLowerCase()} successfully`);
+            } else {
+                toast.error("Failed to update order status");
+            }
+        } catch (error) {
+            console.error("Error updating order:", error);
+            toast.error("Error updating order status");
+        }
+    };
+
+    const handleDeleteOrder = async (orderId) => {
+        if (!confirm("Are you sure you want to delete this order?")) return;
+
+        try {
+            const res = await fetch(`/api/admin/orders/${orderId}`, {
+                method: "DELETE",
+            });
+
+            if (res.ok) {
+                setOrders(orders.filter(order => order._id !== orderId));
+                toast.success("Order deleted successfully");
+            } else {
+                toast.error("Failed to delete order");
+            }
+        } catch (error) {
+            console.error("Error deleting order:", error);
+            toast.error("Error deleting order");
         }
     };
 
@@ -96,10 +139,33 @@ export default function AdminOrdersPage() {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-right">
-                                                <button className="flex items-center gap-2 ml-auto text-sm text-gray-400 hover:text-white transition-colors">
-                                                    <Eye size={16} />
-                                                    Details
-                                                </button>
+                                                <div className="flex items-center justify-end gap-2">
+                                                    {order.status === 'Pending' && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleUpdateStatus(order._id, 'Processing')}
+                                                                title="Accept Order"
+                                                                className="p-2 text-green-500 hover:bg-green-500/10 rounded-lg transition-colors"
+                                                            >
+                                                                <Check size={18} />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleUpdateStatus(order._id, 'Cancelled')}
+                                                                title="Reject Order"
+                                                                className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                                                            >
+                                                                <X size={18} />
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                    <button
+                                                        onClick={() => handleDeleteOrder(order._id)}
+                                                        title="Delete Order"
+                                                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </div>
                                             </td>
                                         </motion.tr>
                                     );
