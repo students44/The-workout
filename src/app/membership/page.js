@@ -35,6 +35,7 @@ export default function MembershipPage() {
                 "Private Locker",
                 "Towel Service",
                 "Unlimited Guest passes",
+                "cardio equipment access",
             ],
             cta: "Select VIP",
             popular: false,
