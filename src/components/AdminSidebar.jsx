@@ -8,7 +8,8 @@ import {
     ShoppingBag,
     Settings,
     LogOut,
-    Package
+    Package,
+    CreditCard
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 
@@ -32,6 +33,11 @@ const sidebarItems = [
         title: "Orders",
         href: "/admin/orders",
         icon: ShoppingBag
+    },
+    {
+        title: "Payments",
+        href: "/admin/payments",
+        icon: CreditCard
     },
     {
         title: "Settings",

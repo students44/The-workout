@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 export default function DashboardPage() {
     const { data: session } = useSession();
@@ -13,13 +14,46 @@ export default function DashboardPage() {
 
     return (
         <div>
-            <div className="mb-8">
-                <h1 className="text-2xl font-bold leading-7 text-white sm:truncate sm:text-3xl sm:tracking-tight">
-                    Welcome back, {session?.user?.name || 'Athlete'}
-                </h1>
-                <p className="mt-2 text-sm text-gray-400">
-                    Here's what's happening with your training today.
-                </p>
+            <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h1 className="text-2xl font-bold leading-7 text-white sm:truncate sm:text-3xl sm:tracking-tight">
+                        Welcome back, {session?.user?.name || 'Athlete'}
+                    </h1>
+                    <p className="mt-2 text-sm text-gray-400">
+                        Here's what's happening with your training today.
+                    </p>
+                </div>
+                <div className="mt-4 sm:mt-0">
+                    <Link href="/dashboard/upgrade" className="inline-flex items-center justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600">
+                        Upgrade Plan
+                    </Link>
+                </div>
+            </div>
+
+            {/* Membership Status Card */}
+            <div className="mb-8 rounded-lg bg-gray-900 border border-gray-800 p-6">
+                <h2 className="text-lg font-medium text-white mb-4">Membership Status</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <p className="text-sm text-gray-400">Current Plan</p>
+                        <p className="text-xl font-bold text-white capitalize">{session?.user?.membership === 'none' ? 'No Active Plan' : session?.user?.membership}</p>
+                    </div>
+                    <div>
+                        <p className="text-sm text-gray-400">Status</p>
+                        <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${session?.user?.planStatus === 'Active' ? 'bg-green-400/10 text-green-400 ring-green-400/20' :
+                            session?.user?.planStatus === 'Pending' ? 'bg-yellow-400/10 text-yellow-400 ring-yellow-400/20' :
+                                'bg-gray-400/10 text-gray-400 ring-gray-400/20'
+                            }`}>
+                            {session?.user?.planStatus || 'Inactive'}
+                        </span>
+                    </div>
+                    <div>
+                        <p className="text-sm text-gray-400">Expiry Date</p>
+                        <p className="text-white">
+                            {session?.user?.planExpiryDate ? new Date(session.user.planExpiryDate).toLocaleDateString() : 'N/A'}
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">

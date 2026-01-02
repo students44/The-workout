@@ -12,6 +12,7 @@ const sendEmail = async (options) => {
                 pass: process.env.GMAIL_PASS, // App Password
             },
         });
+        console.log('Transporter initialized using service: gmail');
     } else {
         transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST || 'smtp.mailtrap.io', // Default or env
@@ -21,6 +22,7 @@ const sendEmail = async (options) => {
                 pass: process.env.SMTP_PASS,
             },
         });
+        console.log(`Transporter initialized using host: ${process.env.SMTP_HOST || 'smtp.mailtrap.io'}`);
     }
 
     // Define email options

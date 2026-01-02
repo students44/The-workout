@@ -29,8 +29,15 @@ const UserSchema = new mongoose.Schema(
         },
         membership: {
             type: String,
-            enum: ["none", "basic", "premium", "vip"],
+            enum: ["none", "Basic", "Standard", "Premium"],
             default: "none",
+        },
+        planStartDate: Date,
+        planExpiryDate: Date,
+        planStatus: {
+            type: String,
+            enum: ["Active", "Expired", "Pending", "None"],
+            default: "None",
         },
         image: {
             type: String,

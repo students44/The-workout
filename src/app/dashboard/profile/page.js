@@ -1,4 +1,5 @@
 import ProfileForm from "@/components/ProfileForm";
+import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../api/auth/[...nextauth]/route";
 import dbConnect from "@/lib/db";
@@ -79,9 +80,9 @@ export default async function ProfilePage() {
                         </div>
 
                         <div className="mt-8">
-                            <button className="w-full py-2.5 rounded-lg bg-white text-black font-bold hover:bg-gray-200 transition-colors">
+                            <Link href="/dashboard/upgrade" className="block w-full text-center py-2.5 rounded-lg bg-white text-black font-bold hover:bg-gray-200 transition-colors">
                                 Upgrade Plan
-                            </button>
+                            </Link>
                         </div>
                     </div>
                 </div>
