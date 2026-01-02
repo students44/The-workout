@@ -5,6 +5,8 @@ import dbConnect from "@/lib/db";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
 import User from "@/models/User";
+import Settings from "@/models/Settings";
+import sendEmail from "@/lib/sendEmail";
 import mongoose from "mongoose";
 
 export async function POST(request) {
@@ -70,6 +72,37 @@ export async function POST(request) {
             await Product.findByIdAndUpdate(item._id, {
                 $inc: { stock: -item.quantity }
             });
+        }
+
+        // Send Notification Email
+        try {
+            const settings = await Settings.findOne();
+            if (settings && settings.orderNotifications) {
+                const adminEmail = settings.supportEmail || process.env.SMTP_FROM_EMAIL;
+
+                const emailMessage = `
+                    <h1>New Order Received</h1>
+                    <p>Order ID: ${order._id}</p>
+                    <p>User: ${user.name} (${user.email})</p>
+                    <p>Total: $${total}</p>
+                    <br/>
+                    <h2>Items:</h2>
+                    <ul>
+                        ${order.items.map(item => `
+                            <li>${item.name} x ${item.quantity} - $${item.price}</li>
+                        `).join('')}
+                    </ul>
+                `;
+
+                await sendEmail({
+                    email: adminEmail,
+                    subject: `New Order: #${order._id}`,
+                    message: emailMessage
+                });
+            }
+        } catch (emailError) {
+            console.error("Failed to send order notification:", emailError);
+            // Don't fail the request if email fails
         }
 
         return NextResponse.json({
